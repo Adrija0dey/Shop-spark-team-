@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Team Spark - Shop Stock</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#1d2433;--muted:#667085;--line:#e4e7ec;--accent:#0f766e;--accent2:#115e59;--bad:#b42318;--badbg:#fef3f2;--warn:#b54708;--warnbg:#fffaeb;--ok:#067647;--okbg:#ecfdf3}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+h2{font-size:16px;margin:0 0 12px}h3{margin:0 0 12px}
+small,.muted{color:var(--muted)}small{display:block;font-size:12px}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.bar{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:700;display:flex;align-items:center;gap:8px;font-size:17px}
+.dot{width:9px;height:9px;border-radius:50%;background:#98a2b3;display:inline-block}.dot.ok{background:#12b76a}.dot.bad{background:#f04438}
+nav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+nav button{border:0;background:none;padding:8px 12px;border-radius:8px;color:var(--muted);display:flex;gap:6px;align-items:center}
+nav button.active{background:#e6f4f1;color:var(--accent2);font-weight:600}
+.badge{background:var(--bad);color:#fff;border-radius:999px;font-size:12px;line-height:1;padding:3px 7px;font-weight:700}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px}
+.pad{padding:16px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.spacer{flex:1}.row{display:flex;gap:8px}.row input{flex:1}
+.chk{display:flex;gap:6px;align-items:center;color:var(--muted)}
+input,select{font:inherit;padding:8px 10px;border:1px solid #cfd4dc;border-radius:8px;background:#fff;color:var(--ink);min-width:0}
+input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button,.btn{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid #cfd4dc;background:#fff;color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover:not(:disabled){background:var(--accent2)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.block{width:100%;margin-top:10px}
+button.icon{border:0;background:none;font-size:20px;line-height:1;padding:4px 8px;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:#fafbfc;user-select:none}
+th[data-sort]{cursor:pointer}th.asc::after{content:" \25B2";font-size:9px}th.desc::after{content:" \25BC";font-size:9px}
+.r{text-align:right}code{font-size:13px;background:#f2f4f7;padding:2px 6px;border-radius:5px}
+.acts{text-align:right}.acts button{padding:4px 9px;font-size:13px;margin-left:4px}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.pill.bad{background:var(--badbg);color:var(--bad)}.pill.warn{background:var(--warnbg);color:var(--warn)}
+.neg{color:var(--bad)}.pos{color:var(--ok)}
+.empty{padding:36px 16px;text-align:center;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.results{display:grid;gap:6px;margin-top:12px;max-height:420px;overflow:auto}
+.res{display:flex;justify-content:space-between;gap:10px;text-align:left;width:100%;align-items:center}
+.res span:last-child{font-size:13px;color:var(--muted);white-space:nowrap}
+.qty{width:70px;text-align:right}
+.totalrow{display:flex;justify-content:space-between;font-size:18px;padding:12px 0 0}
+.err{color:var(--bad);margin:8px 0 0;min-height:0}
+.ok-box{background:var(--okbg);color:var(--ok);padding:10px 12px;border-radius:8px;margin-top:10px}
+.ok-box a{color:inherit;font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0}
+.kpi{padding:14px 16px}.kpi small{text-transform:uppercase;letter-spacing:.04em}.kpi b{font-size:22px;display:block;margin-top:2px}
+.chart{display:flex;gap:8px;align-items:flex-end;height:190px;padding:16px 16px 8px}
+.col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0}
+.col .v{font-size:11px;color:var(--muted);white-space:nowrap}
+.col .b{width:100%;max-width:56px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}
+.col .l{font-size:12px;color:var(--muted);margin-top:4px}
+.sect{margin:20px 0 8px;font-size:15px}
+dialog{border:0;border-radius:14px;padding:20px;width:calc(100% - 32px);max-width:520px}
+dialog.wide{max-width:740px}
+dialog::backdrop{background:rgba(16,24,40,.5)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+label.f input{font-size:15px;color:var(--ink)}
+.full{grid-column:1/-1}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+video{width:100%;border-radius:10px;background:#000}
+.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);background:#1d2433;color:#fff;padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;max-width:90vw;z-index:50}
+.toast.show{opacity:1;transform:translate(-50%,0)}.toast.bad{background:var(--bad)}
+@media(max-width:800px){.two{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}nav{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="brand"><span id="health" class="dot" title="Checking server..."></span>Team Spark Stock</div>
+  <nav id="tabs">
+    <button data-tab="products">Products</button>
+    <button data-tab="sell">Sell</button>
+    <button data-tab="sales">Sales</button>
+    <button data-tab="report">Report</button>
+    <button data-tab="low">Low stock <span id="lowBadge" class="badge" hidden>0</span></button>
+  </nav>
+</div></header>
+
+<main>
+  <!-- PRODUCTS -->
+  <section id="tab-products">
+    <div class="toolbar">
+      <input id="q" type="search" placeholder="Search name, SKU or category...">
+      <select id="cat" aria-label="Category"><option value="">All categories</option></select>
+      <label class="chk"><input id="lowOnly" type="checkbox"> Low stock only</label>
+      <span class="spacer"></span>
+      <button id="btnImport">Import CSV</button>
+      <input id="csvFile" type="file" accept=".csv,text/csv" hidden>
+      <a class="btn" href="/api/products/export.csv" download>Export CSV</a>
+      <button id="btnAdd" class="primary">+ Add product</button>
+    </div>
+    <div class="card tablewrap">
+      <table id="prodTable">
+        <thead><tr>
+          <th data-sort="name">Name</th><th data-sort="sku">SKU</th><th data-sort="category">Category</th>
+          <th class="r" data-sort="cost">Cost</th><th class="r" data-sort="price">Price</th>
+          <th class="r" data-sort="stock">Stock</th><th class="r" data-sort="reorder_level">Reorder at</th>
+          <th class="r" title="Forecast: days until stock reaches the reorder level">Reorder in</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="prodEmpty" class="empty" hidden></div>
+    </div>
+  </section>
+
+  <!-- SELL -->
+  <section id="tab-sell" hidden>
+    <div class="two">
+      <div class="card pad">
+        <h2>Add items</h2>
+        <div class="row">
+          <input id="sellQ" type="search" placeholder="Search, or scan a SKU and press Enter" autocomplete="off">
+          <button id="btnScan" type="button">Scan</button>
+        </div>
+        <div id="sellResults" class="results"></div>
+      </div>
+      <div class="card pad">
+        <h2>Current sale</h2>
+        <div id="cartEmpty" class="muted">No items yet. Pick products on the left.</div>
+        <div class="tablewrap"><table id="cartTable" hidden>
+          <thead><tr><th>Item</th><th class="r">Price</th><th class="r">Qty</th><th class="r">Amount</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div class="totalrow"><span>Total</span><strong id="cartTotal">&#8377;0.00</strong></div>
+        <p id="sellErr" class="err"></p>
+        <button id="btnSell" class="primary block" disabled>Complete sale</button>
+        <div id="saleDone" class="ok-box" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SALES -->
+  <section id="tab-sales" hidden>
+    <div class="card tablewrap">
+      <table id="salesTable">
+        <thead><tr><th>Invoice</th><th>Date</th><th class="r">Units</th><th class="r">Total</th><th class="r">Profit</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="salesEmpty" class="empty" hidden>No sales recorded yet.</div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section id="tab-report" hidden>
+    <div class="toolbar">
+      <select id="repPeriod" aria-label="Period">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly (7 days)</option>
+      </select>
+      <label class="chk">Ending on <input id="repDate" type="date"></label>
+      <small>Leave blank for today</small>
+    </div>
+    <div class="kpis">
+      <div class="card kpi"><small>Revenue</small><b id="kRev">-</b></div>
+      <div class="card kpi"><small>Profit</small><b id="kProfit">-</b></div>
+      <div class="card kpi"><small>Orders</small><b id="kOrders">-</b></div>
+      <div class="card kpi"><small>Units sold</small><b id="kUnits">-</b></div>
+    </div>
+    <div class="card"><div id="chart" class="chart"></div></div>
+    <h3 class="sect">Top 5 items</h3>
+    <div class="card tablewrap">
+      <table id="topTable">
+        <thead><tr><th>#</th><th>Item</th><th class="r">Units</th><th class="r">Revenue</th><th class="r">Profit</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="topEmpty" class="empty" hidden>No sales in this period.</div>
+    </div>
+  </section>
+
+  <!-- LOW STOCK -->
+  <section id="tab-low" hidden>
+    <h3 class="sect" style="margin-top:0">Low stock now</h3>
+    <div class="card tablewrap">
+      <table id="lowTable">
+        <thead><tr><th>Item</th><th>SKU</th><th class="r">Stock</th><th class="r">Reorder at</th><th class="r">Sells / day</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="lowEmpty" class="empty" hidden>Nothing is running low.</div>
+    </div>
+    <h3 class="sect">Forecast: will need reordering within 7 days</h3>
+    <div class="card tablewrap">
+      <table id="fcTable">
+        <thead><tr><th>Item</th><th class="r">Stock</th><th class="r">Sells / day</th><th class="r">Reorder in</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="fcEmpty" class="empty" hidden>No items are about to hit their reorder level.</div>
+    </div>
+  </section>
+</main>
+
+<!-- Dialogs -->
+<dialog id="dlgProduct"><form id="formProduct">
+  <h3 id="prodTitle">Add product</h3>
+  <div class="grid2">
+    <label class="f full">Name<input name="name" required maxlength="120"></label>
+    <label class="f">SKU / barcode<input name="sku" required maxlength="60"></label>
+    <label class="f">Category<input name="category" list="catList" maxlength="60"></label>
+    <label class="f">Cost (&#8377;)<input name="cost" type="number" min="0" step="0.01" required></label>
+    <label class="f">Price (&#8377;)<input name="price" type="number" min="0" step="0.01" required></label>
+    <label class="f">Stock<input name="stock" type="number" min="0" step="1" required></label>
+    <label class="f">Reorder level<input name="reorder_level" type="number" min="0" step="1" required></label>
+  </div>
+  <small id="prodHint" style="margin-top:8px"></small>
+  <p class="err" id="prodErr"></p>
+  <div class="actions"><button type="button" data-close>Cancel</button><button class="primary">Save</button></div>
+</form></dialog>
+<datalist id="catList"></datalist>
+
+<dialog id="dlgRestock"><form id="formRestock">
+  <h3 id="restockTitle">Restock</h3>
+  <div class="grid2">
+    <label class="f">Quantity received<input name="qty" type="number" min="1" step="1" required></label>
+    <label class="f">Unit cost (&#8377;, optional)<input name="cost" type="number" min="0" step="0.01"></label>
+    <label class="f full">Note (supplier, bill no...)<input name="note" maxlength="200"></label>
+  </div>
+  <small style="margin-top:8px">If you enter a unit cost, it becomes the product's cost for future profit figures.</small>
+  <p class="err" id="restockErr"></p>
+  <div class="actions"><button type="button" data-close>Cancel</button><button class="primary">Add stock</button></div>
+</form></dialog>
+
+<dialog id="dlgHist" class="wide">
+  <h3 id="histTitle">Stock history</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>When</th><th>Type</th><th class="r">Change</th><th class="r">Balance</th><th>Note</th></tr></thead>
+    <tbody id="histBody"></tbody>
+  </table></div>
+  <div class="actions"><button type="button" data-close>Close</button></div>
+</dialog>
+
+<dialog id="dlgScan">
+  <h3>Scan barcode</h3>
+  <video id="scanVideo" playsinline muted></video>
+  <div class="actions"><button type="button" data-close>Cancel</button></div>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '₹' + Number(n || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+async function api(path, opts = {}) {
+  const o = {headers: {}, ...opts};
+  if (o.body && !(o.body instanceof FormData)) { o.headers['Content-Type'] = 'application/json'; o.body = JSON.stringify(o.body); }
+  const r = await fetch(path, o);
+  let data = null; try { data = await r.json(); } catch {}
+  if (!r.ok) { const e = new Error((data && data.error) || r.statusText || 'Request failed'); e.data = data; throw e; }
+  return data;
+}
+let toastT;
+function toast(msg, bad) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : '');
+  clearTimeout(toastT); toastT = setTimeout(() => t.className = 'toast', 4000);
+}
+$$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+
+/* ---------- tabs ---------- */
+const LOADERS = {products: loadProducts, sell: loadCatalog, sales: loadSales, report: loadReport, low: loadLow};
+let tab = 'products';
+function showTab(name) {
+  if (!LOADERS[name]) name = 'products';
+  tab = name;
+  $$('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  $$('main > section').forEach(s => s.hidden = s.id !== 'tab-' + name);
+  history.replaceState(null, '', '#' + name);
+  LOADERS[name]().catch(e => toast(e.message, true));
+}
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('button[data-tab]'); if (b) showTab(b.dataset.tab); });
+const afterChange = () => LOADERS[tab]().catch(e => toast(e.message, true));
+
+function setBadge(n) { const b = $('#lowBadge'); b.textContent = n; b.hidden = !n; }
+async function refreshBadge() { try { setBadge((await api('/api/low-stock')).count); } catch {} }
+
+/* ---------- products ---------- */
+const S = {sort: 'name', dir: 'asc', list: []};
+async function loadCategories() {
+  const cats = await api('/api/categories'), sel = $('#cat'), cur = sel.value;
+  sel.innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option>${esc(c)}</option>`).join('');
+  sel.value = cats.includes(cur) ? cur : '';
+  $('#catList').innerHTML = cats.map(c => `<option value="${esc(c)}">`).join('');
+}
+async function loadProducts() {
+  const p = new URLSearchParams({sort: S.sort, dir: S.dir});
+  if ($('#q').value.trim()) p.set('q', $('#q').value.trim());
+  if ($('#cat').value) p.set('category', $('#cat').value);
+  if ($('#lowOnly').checked) p.set('low', '1');
+  S.list = await api('/api/products?' + p);
+  renderProducts();
+  loadCategories().catch(() => {}); refreshBadge();
+}
+const stockCell = p => p.stock === 0 ? '<span class="pill bad">Out</span>' : p.low ? `<span class="pill warn">${p.stock} &middot; low</span>` : p.stock;
+const reorderCell = p => p.reorder_in_days === null ? '&ndash;' : p.low ? '<span class="pill warn">now</span>' : p.reorder_in_days + ' d';
+function renderProducts() {
+  $$('#prodTable th[data-sort]').forEach(th => th.className = th.dataset.sort === S.sort ? (S.dir === 'desc' ? 'desc' : 'asc') : '');
+  $('#prodTable tbody').innerHTML = S.list.map(p => `<tr>
+    <td><strong>${esc(p.name)}</strong></td><td><code>${esc(p.sku)}</code></td><td>${esc(p.category)}</td>
+    <td class="r">${money(p.cost)}</td><td class="r">${money(p.price)}</td>
+    <td class="r">${stockCell(p)}</td><td class="r">${p.reorder_level}</td>
+    <td class="r" title="${esc(p.avg_daily)} sold per day (14-day average)">${reorderCell(p)}</td>
+    <td class="acts"><button data-act="restock" data-id="${p.id}">Restock</button><button data-act="history" data-id="${p.id}">History</button><button data-act="edit" data-id="${p.id}">Edit</button><button data-act="delete" data-id="${p.id}">Delete</button></td>
+  </tr>`).join('');
+  const empty = $('#prodEmpty'), filtered = $('#q').value || $('#cat').value || $('#lowOnly').checked;
+  empty.hidden = S.list.length > 0;
+  if (!S.list.length) empty.innerHTML = filtered ? 'No products match your search.' :
+    'No products yet. Add one, import a CSV, or <button id="btnSeed" class="primary" style="margin-left:6px">Load demo data</button>';
+}
+$('#prodTable thead').addEventListener('click', e => {
+  const th = e.target.closest('th[data-sort]'); if (!th) return;
+  S.dir = S.sort === th.dataset.sort && S.dir === 'asc' ? 'desc' : 'asc'; S.sort = th.dataset.sort;
+  loadProducts().catch(err => toast(err.message, true));
+});
+let qT; $('#q').addEventListener('input', () => { clearTimeout(qT); qT = setTimeout(() => loadProducts().catch(e => toast(e.message, true)), 200); });
+$('#cat').addEventListener('change', () => loadProducts().catch(e => toast(e.message, true)));
+$('#lowOnly').addEventListener('change', () => loadProducts().catch(e => toast(e.message, true)));
+$('#prodEmpty').addEventListener('click', async e => {
+  if (e.target.id !== 'btnSeed') return;
+  try { await api('/api/seed', {method: 'POST'}); toast('Demo data loaded'); loadProducts(); } catch (err) { toast(err.message, true); }
+});
+
+$('#prodTable tbody').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const p = S.list.find(x => x.id === +b.dataset.id); if (!p) return;
+  if (b.dataset.act === 'edit') openProduct(p);
+  if (b.dataset.act === 'restock') openRestock(p);
+  if (b.dataset.act === 'history') openHistory(p);
+  if (b.dataset.act === 'delete') {
+    if (!confirm(`Delete "${p.name}"? Its stock history is removed; past sales keep their records.`)) return;
+    try { await api('/api/products/' + p.id, {method: 'DELETE'}); toast('Product deleted'); afterChange(); } catch (err) { toast(err.message, true); }
+  }
+});
+
+/* add / edit */
+const fp = $('#formProduct');
+function openProduct(p) {
+  fp.reset(); fp.dataset.id = p ? p.id : ''; $('#prodErr').textContent = '';
+  $('#prodTitle').textContent = p ? 'Edit product' : 'Add product';
+  $('#prodHint').textContent = p ? 'Changing stock here is saved in the history as an adjustment.' : '';
+  if (p) for (const k of ['name', 'sku', 'category', 'cost', 'price', 'stock', 'reorder_level']) fp.elements[k].value = p[k];
+  else { fp.elements.stock.value = 0; fp.elements.reorder_level.value = 5; }
+  $('#dlgProduct').showModal();
+}
+$('#btnAdd').addEventListener('click', () => openProduct(null));
+fp.addEventListener('submit', async e => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(fp)), id = fp.dataset.id;
+  try {
+    await api(id ? '/api/products/' + id : '/api/products', {method: id ? 'PUT' : 'POST', body: data});
+    $('#dlgProduct').close(); toast(id ? 'Product updated' : 'Product added'); afterChange();
+  } catch (err) { $('#prodErr').textContent = err.message; }
+});
+
+/* restock */
+const fr = $('#formRestock');
+function openRestock(p) {
+  fr.reset(); fr.dataset.id = p.id; $('#restockErr').textContent = '';
+  $('#restockTitle').textContent = `Restock: ${p.name} (now ${p.stock})`;
+  fr.elements.cost.placeholder = 'Currently ' + Number(p.cost).toFixed(2);
+  $('#dlgRestock').showModal();
+}
+fr.addEventListener('submit', async e => {
+  e.preventDefault();
+  try {
+    const p = await api(`/api/products/${fr.dataset.id}/restock`, {method: 'POST', body: Object.fromEntries(new FormData(fr))});
+    $('#dlgRestock').close(); toast(`${p.name} restocked - now ${p.stock}`); afterChange();
+  } catch (err) { $('#restockErr').textContent = err.message; }
+});
+
+/* stock history */
+async function openHistory(p) {
+  $('#histTitle').textContent = p.name + ' - stock history';
+  try {
+    const list = await api(`/api/products/${p.id}/movements`);
+    $('#histBody').innerHTML = list.length ? list.map(m => `<tr><td>${esc(m.created_at)}</td><td>${esc(m.kind)}</td>
+      <td class="r ${m.qty_change < 0 ? 'neg' : 'pos'}">${m.qty_change > 0 ? '+' : ''}${m.qty_change}</td>
+      <td class="r">${m.balance_after}</td><td>${esc(m.note)}</td></tr>`).join('')
+      : '<tr><td colspan="5" class="muted">No movements yet.</td></tr>';
+    $('#dlgHist').showModal();
+  } catch (err) { toast(err.message, true); }
+}
+
+/* CSV import */
+$('#btnImport').addEventListener('click', () => $('#csvFile').click());
+$('#csvFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const fd = new FormData(); fd.append('file', f);
+  try {
+    const r = await api('/api/products/import', {method: 'POST', body: fd});
+    let m = `Imported: ${r.created} new, ${r.updated} updated`;
+    if (r.errors.length) m += `, ${r.errors.length} skipped (row ${r.errors[0].row}: ${r.errors[0].error})`;
+    toast(m, r.errors.length > 0); afterChange();
+  } catch (err) { toast(err.message, true); }
+  e.target.value = '';
+});
+
+/* ---------- sell ---------- */
+let catalog = [], cart = [];
+async function loadCatalog() {
+  catalog = await api('/api/products');
+  cart = cart.filter(l => catalog.some(p => p.id === l.id));
+  renderSellResults(); renderCart(); refreshBadge();
+}
+function renderSellResults() {
+  const q = $('#sellQ').value.trim().toLowerCase();
+  const list = catalog.filter(p => !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)).slice(0, 12);
+  $('#sellResults').innerHTML = !catalog.length ? '<p class="muted">No products yet. Add some on the Products tab.</p>'
+    : list.length ? list.map(p => `<button class="res" data-id="${p.id}" ${p.stock < 1 ? 'disabled' : ''}>
+        <span><strong>${esc(p.name)}</strong><small>${esc(p.sku)} &middot; ${money(p.price)}</small></span>
+        <span class="${p.stock < 1 ? 'neg' : ''}">${p.stock < 1 ? 'Out of stock' : p.stock + ' in stock'}</span></button>`).join('')
+    : '<p class="muted">No matching products.</p>';
+}
+$('#sellQ').addEventListener('input', renderSellResults);
+$('#sellQ').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return; e.preventDefault();
+  const q = e.target.value.trim().toLowerCase(); if (!q) return;
+  const exact = catalog.find(p => p.sku.toLowerCase() === q);
+  const hits = catalog.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+  const p = exact || (hits.length === 1 ? hits[0] : null);
+  if (p) { addToCart(p.id); e.target.value = ''; renderSellResults(); } else toast('Pick a product from the list', true);
+});
+$('#sellResults').addEventListener('click', e => { const b = e.target.closest('button[data-id]'); if (b) addToCart(+b.dataset.id); });
+function addToCart(id) {
+  const p = catalog.find(x => x.id === id); if (!p) return;
+  if (p.stock < 1) return toast(p.name + ' is out of stock', true);
+  const line = cart.find(l => l.id === id);
+  if (line) { if (line.qty >= p.stock) return toast(`Only ${p.stock} of ${p.name} in stock`, true); line.qty++; }
+  else cart.push({id, qty: 1});
+  $('#saleDone').hidden = true; renderCart();
+}
+function renderCart() {
+  let total = 0, bad = false;
+  $('#cartTable tbody').innerHTML = cart.map((l, i) => {
+    const p = catalog.find(x => x.id === l.id);
+    const over = !Number.isInteger(l.qty) || l.qty < 1 || l.qty > p.stock;
+    if (over) bad = true;
+    const amt = over ? 0 : p.price * l.qty; total += amt;
+    return `<tr><td>${esc(p.name)}<small class="${over ? 'neg' : ''}">${over ? 'Only ' + p.stock + ' in stock' : esc(p.sku)}</small></td>
+      <td class="r">${money(p.price)}</td>
+      <td class="r"><input class="qty" type="number" min="1" max="${p.stock}" step="1" value="${l.qty}" data-i="${i}" aria-label="Quantity"></td>
+      <td class="r">${money(amt)}</td><td><button class="icon" data-rm="${i}" aria-label="Remove item">&times;</button></td></tr>`;
+  }).join('');
+  $('#cartTable').hidden = !cart.length; $('#cartEmpty').hidden = !!cart.length;
+  $('#cartTotal').textContent = money(total);
+  $('#btnSell').disabled = !cart.length || bad;
+  $('#sellErr').textContent = '';
+}
+$('#cartTable').addEventListener('change', e => {
+  if (!e.target.matches('.qty')) return;
+  const l = cart[+e.target.dataset.i]; if (l) { l.qty = Number(e.target.value); renderCart(); }
+});
+$('#cartTable').addEventListener('click', e => {
+  const b = e.target.closest('[data-rm]'); if (b) { cart.splice(+b.dataset.rm, 1); renderCart(); }
+});
+$('#btnSell').addEventListener('click', async () => {
+  $('#btnSell').disabled = true; $('#sellErr').textContent = '';
+  try {
+    const sale = await api('/api/sales', {method: 'POST', body: {items: cart.map(l => ({product_id: l.id, qty: l.qty}))}});
+    cart = [];
+    await loadCatalog();
+    const d = $('#saleDone'); d.hidden = false;
+    d.innerHTML = `Sale ${esc(sale.invoice_no)} saved: ${money(sale.total)}. <a href="/invoice/${sale.id}" target="_blank" rel="noopener">Open invoice</a>`;
+  } catch (err) {
+    await loadCatalog(); $('#sellErr').textContent = err.message;
+  }
+});
+
+/* barcode scanning (camera) - uses the browser's BarcodeDetector where available */
+let stream = null, scanTimer = null;
+function stopScan() {
+  clearInterval(scanTimer); scanTimer = null;
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+}
+$('#dlgScan').addEventListener('close', stopScan);
+$('#btnScan').addEventListener('click', async () => {
+  if (!('BarcodeDetector' in window) || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
+    return toast('Camera scanning needs Chrome (Android/desktop) over HTTPS. Type or scan the SKU into the box instead.', true);
+  try { stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}}); }
+  catch { return toast('Camera permission was denied', true); }
+  const v = $('#scanVideo'), det = new BarcodeDetector();
+  v.srcObject = stream; await v.play(); $('#dlgScan').showModal();
+  scanTimer = setInterval(async () => {
+    try {
+      const codes = await det.detect(v); if (!codes.length) return;
+      const code = codes[0].rawValue, p = catalog.find(x => x.sku.toLowerCase() === code.toLowerCase());
+      $('#dlgScan').close();
+      if (p) { addToCart(p.id); toast('Added ' + p.name); } else toast('No product with SKU ' + code, true);
+    } catch {}
+  }, 400);
+});
+
+/* ---------- sales ---------- */
+async function loadSales() {
+  const list = await api('/api/sales');
+  $('#salesTable tbody').innerHTML = list.map(s => `<tr><td><strong>${esc(s.invoice_no)}</strong></td><td>${esc(s.created_at)}</td>
+    <td class="r">${s.units}</td><td class="r">${money(s.total)}</td><td class="r">${money(s.profit)}</td>
+    <td class="acts"><a class="btn" href="/invoice/${s.id}" target="_blank" rel="noopener">Invoice</a></td></tr>`).join('');
+  $('#salesEmpty').hidden = list.length > 0;
+}
+
+/* ---------- report ---------- */
+async function loadReport() {
+  const date = $('#repDate').value;
+  const r = await api(`/api/reports/sales?period=${$('#repPeriod').value}` + (date ? '&date=' + date : ''));
+  $('#kRev').textContent = money(r.revenue); $('#kProfit').textContent = money(r.profit);
+  $('#kOrders').textContent = r.orders; $('#kUnits').textContent = r.units;
+  const max = Math.max(1, ...r.by_day.map(d => d.revenue));
+  $('#chart').innerHTML = r.by_day.map(d => `<div class="col" title="${esc(d.day)}: ${money(d.revenue)} from ${d.orders} orders">
+    <div class="v">${money(d.revenue)}</div><div class="b" style="height:${Math.round(d.revenue / max * 78)}%"></div><div class="l">${esc(d.day.slice(5))}</div></div>`).join('');
+  $('#topTable tbody').innerHTML = r.top_items.map((t, i) => `<tr><td>${i + 1}</td><td>${esc(t.name)}<small>${esc(t.sku)}</small></td>
+    <td class="r">${t.qty}</td><td class="r">${money(t.revenue)}</td><td class="r">${money(t.profit)}</td></tr>`).join('');
+  $('#topEmpty').hidden = r.top_items.length > 0;
+}
+$('#repPeriod').addEventListener('change', () => loadReport().catch(e => toast(e.message, true)));
+$('#repDate').addEventListener('change', () => loadReport().catch(e => toast(e.message, true)));
+
+/* ---------- low stock ---------- */
+async function loadLow() {
+  const [low, fc] = await Promise.all([api('/api/low-stock'), api('/api/forecast?within=7')]);
+  setBadge(low.count);
+  $('#lowTable tbody').innerHTML = low.items.map(p => `<tr><td><strong>${esc(p.name)}</strong></td><td><code>${esc(p.sku)}</code></td>
+    <td class="r">${stockCell(p)}</td><td class="r">${p.reorder_level}</td><td class="r">${p.avg_daily || '&ndash;'}</td>
+    <td class="acts"><button data-id="${p.id}">Restock</button></td></tr>`).join('');
+  $('#lowEmpty').hidden = low.items.length > 0;
+  const soon = fc.items.filter(p => !p.low);
+  $('#fcTable tbody').innerHTML = soon.map(p => `<tr><td><strong>${esc(p.name)}</strong><small>${esc(p.sku)}</small></td>
+    <td class="r">${p.stock}</td><td class="r">${p.avg_daily}</td><td class="r">${p.reorder_in_days} d</td>
+    <td class="acts"><button data-id="${p.id}">Restock</button></td></tr>`).join('');
+  $('#fcEmpty').hidden = soon.length > 0;
+  S.lowLists = [...low.items, ...soon];
+}
+$('#tab-low').addEventListener('click', e => {
+  const b = e.target.closest('button[data-id]'); if (!b) return;
+  const p = (S.lowLists || []).find(x => x.id === +b.dataset.id); if (p) openRestock(p);
+});
+
+/* ---------- start ---------- */
+fetch('/api/health').then(r => r.json()).then(() => { $('#health').className = 'dot ok'; $('#health').title = 'Server OK'; })
+  .catch(() => { $('#health').className = 'dot bad'; $('#health').title = 'Server not reachable'; });
+showTab(location.hash.slice(1));
+</script>
+</body>
+</html>
